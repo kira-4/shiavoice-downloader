@@ -1,0 +1,18 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Runtime data
+downloads/
+data/
+*.log
+
+# OS
+.DS_Store
+
+# Docker / env
+.env
+
+shiavoice*.html
+music/

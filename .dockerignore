@@ -1,0 +1,8 @@
+downloads/
+data/
+.venv/
+__pycache__/
+*.log
+./*.html
+.DS_Store
+.git/

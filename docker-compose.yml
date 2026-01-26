@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  shiavoice:
+    # Use the image from GitHub Container Registry
+    # Replace <owner> with your GitHub username if needed, but standard practice
+    # is that the user will set this or we prompt them.
+    # However the prompt said: Use image: ghcr.io/<owner>/<repo>:latest
+    # Since I don't know the exact username, I will use a placeholder or assume based on path.
+    # The path is /Users/akbaralhashim/... so I'll assume akbaralhashim.
+    image: ghcr.io/akbaralhashim/shiavoice-downloader:latest
+    container_name: shiavoice-dl
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      - OUTPUT_DIR=/music
+      - DATA_DIR=/data
+      - TZ=UTC
+    volumes:
+      # Mount your Navidrome music library here
+      - ./downloads:/music
+      # Persist app data (jobs DB, covers cache)
+      - ./data:/data
+      # Removed source code bind mount for production
+      # Optional: Run as specific user if needed
+      # user: "1000:1000"
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# To run CLI command:
+# docker compose run --rm shiavoice python -m app.main download "URL" ...

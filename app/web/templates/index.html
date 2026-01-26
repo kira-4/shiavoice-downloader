@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shiavoice Downloader</title>
+    <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <h1>Shiavoice Downloader</h1>
+            <div id="connection-status" class="status-indicator">Wait...</div>
+        </header>
+
+        <main>
+            <!-- Add Job Section -->
+            <section class="card">
+                <h2>Add New Download</h2>
+                <form id="add-job-form">
+                    <div class="input-group">
+                        <input type="text" id="url-input" placeholder="https://shiavoice.com/..." required>
+                        <button type="submit" class="btn primary">Download</button>
+                    </div>
+                    
+                    <details>
+                        <summary>Advanced Options</summary>
+                        <div class="options-grid">
+                            <label>
+                                <span>Output Path</span>
+                                <input type="text" name="output_dir" value="./downloads">
+                            </label>
+                            <label>
+                                <span>Genre</span>
+                                <input type="text" name="genre" placeholder="Auto">
+                            </label>
+                            <label>
+                                <input type="checkbox" name="resume" checked> Resume
+                            </label>
+                            <label>
+                                <input type="checkbox" name="tag" checked> Tag Files
+                            </label>
+                            <label>
+                                <input type="checkbox" name="cover" checked> Embed Cover
+                            </label>
+                            <label>
+                                <input type="checkbox" name="dry_run"> Dry Run
+                            </label>
+                        </div>
+                    </details>
+                </form>
+            </section>
+
+            <!-- Jobs List Section -->
+            <section class="job-list" id="job-list">
+                <!-- Jobs injected here -->
+            </section>
+        </main>
+    </div>
+
+    <template id="job-template">
+        <div class="card job-card">
+            <div class="job-header">
+                <div class="job-title-row">
+                    <span class="job-title">Loading title...</span>
+                    <!-- <span class="job-id">#ID</span> -->
+                    <span class="job-status badge">Queued</span>
+                </div>
+                <a class="job-url" href="#" target="_blank" rel="noopener noreferrer">URL</a>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" style="width: 0%"></div>
+            </div>
+            
+            <div class="job-details">
+                <span class="track-info">Waiting...</span>
+                <span class="stats-info">Found: 0 | DL: 0</span>
+            </div>
+            
+            <div class="job-last-error error-text" style="display:none"></div>
+
+            <div class="job-actions">
+                <button class="btn sm danger btn-cancel">Cancel</button>
+                <button class="btn sm secondary btn-delete">Remove</button>
+            </div>
+        </div>
+    </template>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

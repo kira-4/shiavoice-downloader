@@ -1,0 +1,8 @@
+playwright
+aiohttp
+mutagen
+fastapi
+uvicorn
+jinja2
+python-multipart
+# requests (optional if needed, but aiohttp covers it)
