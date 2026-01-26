@@ -4,7 +4,7 @@ from typing import Optional, List, Dict, Any
 @dataclass
 class DownloadConfig:
     url: str
-    output_dir: str = "./downloads"
+    output_dir: str = "/music"
     mode: str = "auto"  # auto, track, album, artist
     headless: bool = True
     timeout: int = 30

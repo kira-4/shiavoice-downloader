@@ -19,10 +19,9 @@ services:
       - TZ=UTC
     volumes:
       # Mount your Navidrome music library here
-      - ./downloads:/music
+      - /opt/navidrome/music:/music
       # Persist app data (jobs DB, covers cache)
       - ./data:/data
-      # Removed source code bind mount for production
       # Optional: Run as specific user if needed
       # user: "1000:1000"
     healthcheck:

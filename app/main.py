@@ -71,7 +71,7 @@ def main():
     # --- Download Command ---
     dl_parser = subparsers.add_parser("download", help="CLI Downloader")
     dl_parser.add_argument("url", help="URL to download from")
-    dl_parser.add_argument("--out", default="./downloads", help="Output directory")
+    dl_parser.add_argument("--out", default="/music", help="Output directory")
     dl_parser.add_argument("--mode", choices=["auto", "track", "album", "artist"], default="auto", help="Force set mode")
     dl_parser.add_argument("--visible", action="store_true", help="Run browser visibly")
     dl_parser.add_argument("--timeout", type=int, default=30)
