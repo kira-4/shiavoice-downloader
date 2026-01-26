@@ -8,7 +8,7 @@ services:
     # However the prompt said: Use image: ghcr.io/<owner>/<repo>:latest
     # Since I don't know the exact username, I will use a placeholder or assume based on path.
     # The path is /Users/akbaralhashim/... so I'll assume akbaralhashim.
-    image: ghcr.io/akbaralhashim/shiavoice-downloader:latest
+    image: ghcr.io/kira-4/shiavoice-downloader:latest
     container_name: shiavoice-dl
     restart: unless-stopped
     ports:
