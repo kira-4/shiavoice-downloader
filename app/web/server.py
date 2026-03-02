@@ -1,5 +1,6 @@
 import os
 import asyncio
+import logging
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -8,6 +9,8 @@ from pydantic import BaseModel
 from typing import Optional
 
 from app.web.manager import manager, Job
+
+logger = logging.getLogger("shiavoice.web.server")
 
 # Initialize API
 app = FastAPI(title="Shiavoice Web UI")
@@ -83,6 +86,9 @@ async def sse_events():
                 data = await q.get()
                 yield f"data: {data}\n\n"
         except asyncio.CancelledError:
+            manager.unsubscribe(q)
+        except Exception as e:
+            logger.error(f"SSE Error: {e}")
             manager.unsubscribe(q)
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
