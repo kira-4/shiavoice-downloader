@@ -1,51 +1,177 @@
+/* ── Midnight Galaxy — CSS Variables ─────────────────────────── */
 :root {
-    --bg: #121212;
-    --surface: #1e1e1e;
-    --primary: #bb86fc;
-    --primary-variant: #3700b3;
-    --secondary: #03dac6;
-    --text: #e0e0e0;
-    --text-sec: #a0a0a0;
-    --error: #cf6679;
-    --success: #4caf50;
-    --radius: 8px;
+    --color-bg:        #2b1e3e;
+    --color-surface:   rgba(45, 30, 70, 0.55);
+    --color-primary:   #4a4e8f;
+    --color-accent:    #a490c2;
+    --color-text:      #e6e6fa;
+    --color-muted:     #9b8fb5;
+    --color-success:   #5ecfa0;
+    --color-error:     #e05a7a;
+
+    --glass-blur:      blur(16px);
+    --glass-border:    1px solid rgba(164, 144, 194, 0.18);
+
+    --glow-primary:    0 0 12px rgba(74, 78, 143, 0.6);
+    --glow-accent:     0 0 10px rgba(164, 144, 194, 0.5);
+    --glow-success:    0 0 10px rgba(94, 207, 160, 0.5);
+    --glow-error:      0 0 10px rgba(224, 90, 122, 0.5);
+
+    --radius:          10px;
+    --font-primary:    'Cairo', 'Segoe UI', Tahoma, sans-serif;
 }
 
+/* ── Cosmic Background ───────────────────────────────────────── */
 body {
-    background-color: var(--bg);
-    color: var(--text);
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: var(--color-bg);
+    color: var(--color-text);
+    font-family: var(--font-primary);
     margin: 0;
     padding: 0;
+    direction: rtl;
+    text-align: end;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
 }
 
+/* Subtle grid overlay */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(164,144,194,0.04) 0px, transparent 1px, transparent 40px),
+        repeating-linear-gradient(90deg, rgba(164,144,194,0.04) 0px, transparent 1px, transparent 40px);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Nebula drift blob */
+body::after {
+    content: '';
+    position: fixed;
+    top: -20%;
+    inset-inline-end: -15%;
+    width: 55vw;
+    height: 55vw;
+    background: radial-gradient(ellipse at center,
+        rgba(74, 78, 143, 0.22) 0%,
+        rgba(164, 144, 194, 0.10) 45%,
+        transparent 70%);
+    border-radius: 50%;
+    animation: nebula-drift 20s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes nebula-drift {
+    0%   { transform: translate(0, 0) scale(1); }
+    50%  { transform: translate(-4%, 6%) scale(1.08); }
+    100% { transform: translate(3%, -5%) scale(0.95); }
+}
+
+/* ── Layout ──────────────────────────────────────────────────── */
 .app-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 24px 20px;
+    position: relative;
+    z-index: 1;
 }
 
+/* ── Header ──────────────────────────────────────────────────── */
 header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
-    border-bottom: 1px solid #333;
-    padding-bottom: 10px;
+    margin-bottom: 32px;
+    padding-bottom: 14px;
+    position: relative;
 }
 
-h1 { margin: 0; font-size: 1.5rem; }
-h2 { font-size: 1.2rem; margin-top: 0; }
+header::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(
+        to inline-end,
+        transparent 0%,
+        var(--color-accent) 30%,
+        var(--color-primary) 70%,
+        transparent 100%
+    );
+    /* Fallback for browsers that don't support logical gradient */
+    background: linear-gradient(
+        to left,
+        transparent 0%,
+        var(--color-accent) 30%,
+        var(--color-primary) 70%,
+        transparent 100%
+    );
+}
 
+h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--color-text);
+    text-shadow: 0 0 20px rgba(164, 144, 194, 0.4);
+    letter-spacing: 0.02em;
+}
+
+h2 {
+    font-size: 1.1rem;
+    margin-top: 0;
+    margin-bottom: 16px;
+    color: var(--color-accent);
+    font-weight: 600;
+}
+
+/* ── Connection Status ───────────────────────────────────────── */
+#connection-status {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 20px;
+    border: 1px solid currentColor;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.03em;
+}
+
+#connection-status::before {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    display: inline-block;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+/* ── Glass Cards ─────────────────────────────────────────────── */
 .card {
-    background-color: var(--surface);
+    background: var(--color-surface);
+    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: var(--glass-blur);
+    border: var(--glass-border);
     border-radius: var(--radius);
     padding: 20px;
     margin-bottom: 20px;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
 }
 
-/* Form */
+/* ── Form ────────────────────────────────────────────────────── */
 .input-group {
     display: flex;
     gap: 10px;
@@ -54,55 +180,169 @@ h2 { font-size: 1.2rem; margin-top: 0; }
 
 input[type="text"] {
     flex: 1;
-    background: #2c2c2c;
-    border: 1px solid #333;
-    color: white;
-    padding: 10px;
-    border-radius: 4px;
+    background: rgba(20, 12, 36, 0.6);
+    border: 1px solid rgba(164, 144, 194, 0.25);
+    color: var(--color-text);
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
 }
 
+input[type="text"]:focus {
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px rgba(164, 144, 194, 0.15);
+}
+
+/* URL input & stats always LTR */
+.job-url,
+.stats-info {
+    direction: ltr;
+    text-align: left;
+}
+
+/* ── Buttons ─────────────────────────────────────────────────── */
 button.btn {
     border: none;
-    padding: 10px 20px;
-    border-radius: 4px;
+    padding: 10px 22px;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
-    transition: background 0.2s;
+    font-weight: 700;
+    font-family: var(--font-primary);
+    font-size: 0.95rem;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 
-.primary { background: var(--primary); color: #000; }
-.primary:hover { background: #dac0fc; }
-.secondary { background: #444; color: #fff; }
-.danger { background: var(--error); color: #000; }
-.sm { padding: 5px 10px; font-size: 0.8rem; }
+button.btn:hover {
+    transform: translateY(-1px);
+}
 
+.primary {
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent));
+    color: #fff;
+    box-shadow: var(--glow-primary);
+}
+.primary:hover {
+    box-shadow: 0 0 20px rgba(74, 78, 143, 0.8);
+}
+
+.secondary {
+    background: rgba(74, 78, 143, 0.3);
+    color: var(--color-muted);
+    border: 1px solid rgba(164, 144, 194, 0.2);
+}
+.secondary:hover {
+    background: rgba(74, 78, 143, 0.5);
+}
+
+.danger {
+    background: transparent;
+    color: var(--color-error);
+    border: 1px solid var(--color-error);
+}
+.danger:hover {
+    background: rgba(224, 90, 122, 0.15);
+    box-shadow: var(--glow-error);
+}
+
+.sm {
+    padding: 5px 12px;
+    font-size: 0.8rem;
+}
+
+/* ── Advanced Options ────────────────────────────────────────── */
 details {
-    margin-top: 10px;
-    color: var(--text-sec);
+    margin-top: 12px;
+    color: var(--color-muted);
 }
-summary { cursor: pointer; }
+
+summary {
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    color: var(--color-muted);
+    transition: color 0.2s;
+}
+
+summary:hover {
+    color: var(--color-accent);
+}
+
+summary::-webkit-details-marker { display: none; }
+
+summary::before {
+    content: '◀';
+    font-size: 0.7rem;
+    display: inline-block;
+    transition: transform 0.25s;
+}
+
+details[open] summary::before {
+    transform: rotate(-90deg);
+}
+
 .options-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(0,0,0,0.2);
-    border-radius: 4px;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+    border: 1px solid rgba(164, 144, 194, 0.1);
 }
-.options-grid label { display: flex; align-items: center; gap: 8px; font-size: 0.9rem; }
 
-/* Job Card */
-.job-card {
-    border-left: 4px solid var(--secondary);
+.options-grid label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
 }
-.job-card.status-failed { border-left-color: var(--error); }
-.job-card.status-completed { border-left-color: var(--success); }
+
+.options-grid input[type="checkbox"] {
+    accent-color: var(--color-accent);
+    width: 15px;
+    height: 15px;
+    cursor: pointer;
+}
+
+/* ── Job Cards ───────────────────────────────────────────────── */
+.job-card {
+    border-inline-start: 4px solid var(--color-accent);
+    transition: box-shadow 0.3s;
+}
+
+.job-card.status-running {
+    border-inline-start-color: var(--color-accent);
+    box-shadow: 0 0 16px rgba(164, 144, 194, 0.2), 0 4px 24px rgba(0,0,0,0.35);
+}
+
+.job-card.status-completed {
+    border-inline-start-color: var(--color-success);
+    box-shadow: 0 0 16px rgba(94, 207, 160, 0.2), 0 4px 24px rgba(0,0,0,0.35);
+}
+
+.job-card.status-failed {
+    border-inline-start-color: var(--color-error);
+    box-shadow: 0 0 16px rgba(224, 90, 122, 0.2), 0 4px 24px rgba(0,0,0,0.35);
+}
+
+.job-card.status-cancelled {
+    border-inline-start-color: var(--color-muted);
+    opacity: 0.75;
+}
 
 .job-header {
     display: flex;
     flex-direction: column;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 .job-title-row {
@@ -113,75 +353,132 @@ summary { cursor: pointer; }
 }
 
 .job-title {
-    font-weight: bold;
-    font-size: 1.1rem;
-    color: var(--text);
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--color-text);
 }
 
 .job-url {
-    font-size: 0.8rem;
-    color: var(--text-sec);
+    font-size: 0.78rem;
+    color: var(--color-muted);
     text-decoration: none;
     margin-bottom: 10px;
     display: block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    transition: color 0.2s;
 }
+
 .job-url:hover {
-    color: var(--primary);
+    color: var(--color-accent);
     text-decoration: underline;
 }
 
+/* ── Progress Bar ────────────────────────────────────────────── */
+.progress-container {
+    height: 6px;
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 3px;
+    margin-bottom: 10px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(to right, var(--color-primary), var(--color-accent));
+    border-radius: 3px;
+    transition: width 0.3s ease;
+    box-shadow: 0 0 8px rgba(164, 144, 194, 0.5);
+}
+
 @keyframes shimmer {
-    0% { background-position: -1000px 0; }
-    100% { background-position: 1000px 0; }
+    0%   { background-position: -1000px 0; }
+    100% { background-position:  1000px 0; }
 }
 
 .progress-bar.indeterminate {
-    background: linear-gradient(to right, var(--primary) 4%, var(--primary-variant) 25%, var(--primary) 36%);
+    background: linear-gradient(
+        to right,
+        var(--color-primary) 4%,
+        var(--color-accent)  25%,
+        var(--color-primary) 36%
+    );
     background-size: 1000px 100%;
     animation: shimmer 2s infinite linear;
     width: 100% !important;
 }
 
-.progress-container {
-    height: 6px;
-    background: #333;
-    border-radius: 3px;
-    margin-bottom: 10px;
-    overflow: hidden;
-}
-.progress-bar {
-    height: 100%;
-    background: var(--primary);
-    transition: width 0.3s ease;
-}
-
+/* ── Job Details Row ─────────────────────────────────────────── */
 .job-details {
     display: flex;
     justify-content: space-between;
-    font-size: 0.85rem;
-    color: var(--text-sec);
+    font-size: 0.82rem;
+    color: var(--color-muted);
+    gap: 8px;
 }
 
 .job-actions {
-    margin-top: 15px;
+    margin-top: 14px;
     display: flex;
     gap: 10px;
-    justify-content: flex-end;
+    justify-content: flex-start;
 }
 
+/* ── Badges ──────────────────────────────────────────────────── */
 .badge {
-    padding: 2px 6px;
+    padding: 3px 8px;
     border-radius: 4px;
-    background: #333;
-    text-transform: uppercase;
-    font-size: 0.7rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    background: transparent;
+    border: 1px solid currentColor;
+    text-shadow: 0 0 6px currentColor;
 }
 
+.status-queued   .badge { color: var(--color-muted); }
+.status-running  .badge { color: var(--color-accent); }
+.status-completed .badge { color: var(--color-success); }
+.status-failed   .badge { color: var(--color-error); }
+.status-cancelled .badge { color: var(--color-muted); }
+
+/* ── Error Text ──────────────────────────────────────────────── */
 .error-text {
-    color: var(--error);
+    color: var(--color-error);
     font-size: 0.8rem;
-    margin-top: 5px;
+    margin-top: 6px;
+    padding: 6px 10px;
+    background: rgba(224, 90, 122, 0.08);
+    border-radius: 4px;
+    border-inline-start: 2px solid var(--color-error);
+}
+
+/* ── Jobs Section Header ─────────────────────────────────────── */
+.jobs-section-title {
+    font-size: 1rem;
+    color: var(--color-muted);
+    margin-bottom: 14px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+}
+
+/* ── Mobile ──────────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    .options-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .input-group {
+        flex-direction: column;
+    }
+
+    .input-group button {
+        width: 100%;
+    }
+
+    .job-details {
+        flex-direction: column;
+        gap: 4px;
+    }
 }

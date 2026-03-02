@@ -10,17 +10,24 @@ function log(msg, type='info') {
 
 // Utils
 function formatStatus(status) {
-    return status ? status.toUpperCase() : "UNKNOWN";
+    const map = {
+        queued:    'في الانتظار',
+        running:   'جارٍ التحميل',
+        completed: 'اكتمل',
+        failed:    'فشل',
+        cancelled: 'ملغى',
+    };
+    return status ? (map[status] || status.toUpperCase()) : 'غير معروف';
 }
 
 function updateConnection(connected) {
     if (connected) {
-        STATUS_EL.textContent = "Live";
-        STATUS_EL.style.color = "var(--success)";
+        STATUS_EL.textContent = "متصل";
+        STATUS_EL.style.color = "var(--color-success)";
         log("Connected to Real-time Events");
     } else {
-        STATUS_EL.textContent = "Disconnected";
-        STATUS_EL.style.color = "var(--error)";
+        STATUS_EL.textContent = "غير متصل";
+        STATUS_EL.style.color = "var(--color-error)";
         log("Disconnected from Events", "error");
     }
 }
@@ -86,7 +93,7 @@ function updateJobElement(card, job) {
         
         // Header Info
         const titleEl = card.querySelector(".job-title");
-        if (titleEl) titleEl.textContent = job.title || "Loading title...";
+        if (titleEl) titleEl.textContent = job.title || "جارٍ التحميل...";
         
         const urlLink = card.querySelector(".job-url");
         if (urlLink) {
@@ -95,18 +102,18 @@ function updateJobElement(card, job) {
         }
 
         // Details
-        let trackText = job.current_track ? `Current: ${job.current_track}` : 
-            (job.status === 'running' ? (found ? 'Downloading...' : 'Discovering...') : 'Idle');
-            
-        if (job.status === 'completed') trackText = 'All Done';
-        if (job.status === 'failed') trackText = 'Failed';
-        if (job.status === 'cancelled') trackText = 'Cancelled';
+        let trackText = job.current_track ? `${job.current_track}` :
+            (job.status === 'running' ? (found ? 'جارٍ التحميل...' : 'جارٍ الاستكشاف...') : 'في الانتظار');
+
+        if (job.status === 'completed') trackText = 'اكتمل بنجاح';
+        if (job.status === 'failed') trackText = 'فشل';
+        if (job.status === 'cancelled') trackText = 'ملغى';
         
         const trackInfo = card.querySelector(".track-info");
         if (trackInfo) trackInfo.textContent = trackText;
         
         const statsInfo = card.querySelector(".stats-info");
-        if (statsInfo) statsInfo.textContent = `Found: ${found} | DL: ${dl}/${found} | Err: ${failed}`;
+        if (statsInfo) statsInfo.textContent = `العثور عليها: ${found} | محمّلة: ${dl}/${found} | أخطاء: ${failed}`;
         
         // Error
         const errDiv = card.querySelector(".job-last-error");
@@ -191,7 +198,7 @@ async function addJob(e) {
         e.target.reset();
     } catch (err) {
         log(`Failed to add job: ${err.message}`, "error");
-        alert("Failed to add job");
+        alert("فشل إضافة التحميل. يرجى المحاولة مرة أخرى.");
     }
 }
 
@@ -201,7 +208,7 @@ async function cancelJob(id) {
 }
 
 async function deleteJob(id) {
-    if(!confirm("Remove this job history?")) return;
+    if(!confirm("هل تريد حذف هذا التحميل من السجل؟")) return;
     log(`Deleting job ${id}`);
     await fetch(`${API_BASE}/jobs/${id}`, {method: "DELETE"});
 }

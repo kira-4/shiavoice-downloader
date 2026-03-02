@@ -1,50 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Shiavoice Downloader</title>
+    <title>محمّل صوت الشيعة</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/static/app.css">
 </head>
 <body>
     <div class="app-container">
         <header>
-            <h1>Shiavoice Downloader</h1>
-            <div id="connection-status" class="status-indicator">Wait...</div>
+            <h1>محمّل صوت الشيعة</h1>
+            <div id="connection-status" class="status-indicator">جارٍ الاتصال...</div>
         </header>
 
         <main>
             <!-- Add Job Section -->
             <section class="card">
-                <h2>Add New Download</h2>
+                <h2>تحميل جديد</h2>
                 <form id="add-job-form">
                     <div class="input-group">
-                        <input type="text" id="url-input" placeholder="https://shiavoice.com/..." required>
-                        <button type="submit" class="btn primary">Download</button>
+                        <input type="text" id="url-input" placeholder="الصق رابط الموقع هنا..." required>
+                        <button type="submit" class="btn primary">تحميل</button>
                     </div>
-                    
+
                     <details>
-                        <summary>Advanced Options</summary>
+                        <summary>خيارات متقدمة</summary>
                         <div class="options-grid">
                             <label>
-                                <span>Output Path</span>
+                                <span>مسار الحفظ</span>
                                 <input type="text" name="output_dir" value="/music">
                             </label>
                             <label>
-                                <span>Genre</span>
-                                <input type="text" name="genre" placeholder="Auto">
+                                <span>النوع</span>
+                                <input type="text" name="genre" placeholder="تلقائي">
                             </label>
                             <label>
-                                <input type="checkbox" name="resume" checked> Resume
+                                <input type="checkbox" name="resume" checked> استكمال التحميل
                             </label>
                             <label>
-                                <input type="checkbox" name="tag" checked> Tag Files
+                                <input type="checkbox" name="tag" checked> إضافة بيانات الصوتية
                             </label>
                             <label>
-                                <input type="checkbox" name="cover" checked> Embed Cover
+                                <input type="checkbox" name="cover" checked> تضمين صورة الغلاف
                             </label>
                             <label>
-                                <input type="checkbox" name="dry_run"> Dry Run
+                                <input type="checkbox" name="dry_run"> تجربة بدون تحميل
                             </label>
                         </div>
                     </details>
@@ -62,27 +65,26 @@
         <div class="card job-card">
             <div class="job-header">
                 <div class="job-title-row">
-                    <span class="job-title">Loading title...</span>
-                    <!-- <span class="job-id">#ID</span> -->
-                    <span class="job-status badge">Queued</span>
+                    <span class="job-title">جارٍ التحميل...</span>
+                    <span class="job-status badge">في الانتظار</span>
                 </div>
                 <a class="job-url" href="#" target="_blank" rel="noopener noreferrer">URL</a>
             </div>
-            
+
             <div class="progress-container">
                 <div class="progress-bar" style="width: 0%"></div>
             </div>
-            
+
             <div class="job-details">
-                <span class="track-info">Waiting...</span>
-                <span class="stats-info">Found: 0 | DL: 0</span>
+                <span class="track-info">في الانتظار...</span>
+                <span class="stats-info">العثور عليها: 0 | محمّلة: 0</span>
             </div>
-            
+
             <div class="job-last-error error-text" style="display:none"></div>
 
             <div class="job-actions">
-                <button class="btn sm danger btn-cancel">Cancel</button>
-                <button class="btn sm secondary btn-delete">Remove</button>
+                <button class="btn sm danger btn-cancel">إلغاء</button>
+                <button class="btn sm secondary btn-delete">حذف</button>
             </div>
         </div>
     </template>
