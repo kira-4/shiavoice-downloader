@@ -59,7 +59,7 @@ class JobManager:
         self._load_jobs()
 
     async def subscribe(self) -> asyncio.Queue:
-        q = asyncio.Queue()
+        q = asyncio.Queue(maxsize=100)
         self.listeners.append(q)
         return q
 
@@ -68,10 +68,15 @@ class JobManager:
             self.listeners.remove(q)
 
     async def _emit_event(self, event_type: str, data: dict):
-        # Broadcast event to all listeners
         msg = json.dumps({"event": event_type, "data": data, "timestamp": time.time()})
+        dead = []
         for q in self.listeners:
-            await q.put(msg)
+            try:
+                q.put_nowait(msg)
+            except asyncio.QueueFull:
+                dead.append(q)
+        for q in dead:
+            self.listeners.remove(q)
 
     def _load_jobs(self):
         if not os.path.exists(self.db_path):
@@ -102,21 +107,24 @@ class JobManager:
         except Exception as e:
             logger.error(f"Failed to load jobs DB: {e}") 
 
-    def _save_job(self, job: Job):
+    def _save_job_sync(self, job: Job):
         try:
             temp_path = self.db_path + ".tmp"
             with open(temp_path, "w") as f:
                 for j in self.jobs.values():
-                    f.write(json.dumps(j.to_dict()) +("\n"))
+                    f.write(json.dumps(j.to_dict()) + "\n")
             os.replace(temp_path, self.db_path)
         except Exception as e:
             logger.error(f"Failed to save jobs: {e}")
+
+    async def _save_job(self, job: Job):
+        await asyncio.to_thread(self._save_job_sync, job)
 
     def create_job(self, url: str, options: dict) -> Job:
         job = Job(url, options)
         self.jobs[job.id] = job
         self.queue.put_nowait(job.id)
-        self._save_job(job)
+        asyncio.create_task(self._save_job(job))
         return job
 
     def get_job(self, job_id: str) -> Optional[Job]:
@@ -130,18 +138,16 @@ class JobManager:
         job = self.jobs.get(job_id)
         if job:
             if job.status in ["queued", "running"]:
-                 job.status = "cancelled"
-                 # Cancellation logic for running job is tricky without explicit task cancellation support
-                 # We will implement a check in the downloader loop? Not easy without modifying downloader deeply.
-                 # But we can cancel the task if we hold it.
-                 pass
-            self._save_job(job)
+                job.status = "cancelled"
+                if job._task and not job._task.done():
+                    job._task.cancel()
+            asyncio.create_task(self._save_job(job))
             asyncio.create_task(self._emit_event("job_updated", job.to_dict()))
 
     def delete_job(self, job_id: str):
         if job_id in self.jobs:
             del self.jobs[job_id]
-            self._save_job(None) # Trigger rewrite without this job
+            self._save_job_sync(None)
             asyncio.create_task(self._emit_event("job_deleted", {"id": job_id}))
 
     async def start_worker(self):
@@ -154,7 +160,12 @@ class JobManager:
                     self.queue.task_done()
                     continue
                 
-                await self._process_job(job)
+                task = asyncio.create_task(self._process_job(job))
+                job._task = task
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    logger.info(f"Job {job.id} cancelled")
                 self.queue.task_done()
                 
             except Exception as e:
@@ -166,7 +177,7 @@ class JobManager:
         job.status = "running"
         job.updated_at = time.time()
         self.active_job = job
-        self._save_job(job)
+        await self._save_job(job)
         await self._emit_event("job_updated", job.to_dict())
 
         # Convert simple options dict to DownloadConfig
@@ -239,7 +250,7 @@ class JobManager:
                 save_needed = True
 
             if save_needed:
-                self._save_job(job)
+                await self._save_job(job)
             
             # Broadcast update
             await self._emit_event("job_updated", job.to_dict())
@@ -255,7 +266,7 @@ class JobManager:
             logger.error(f"Job failed: {e}")
         finally:
             self.active_job = None
-            self._save_job(job)
+            await self._save_job(job)
             await self._emit_event("job_updated", job.to_dict())
 # Global Manager Instance
 manager = JobManager()

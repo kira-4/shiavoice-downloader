@@ -27,6 +27,9 @@ def sanitize_filename(name: str, strict: bool = False) -> str:
     name = name.strip()
     if strict:
         name = re.sub(r'[^\w\s\.-]', '', name)
+        name = name.strip()
+    if not name:
+        return "unknown"
     return name
 
 def parse_hijri_year(text: str) -> str:
@@ -44,7 +47,7 @@ def parse_hijri_year(text: str) -> str:
         if match:
             hijri = int(match.group(1))
             # Approx conversion: G = (H * 0.970224) + 621.5774
-            gregorian = int((hijri * 0.970224) + 621.5774)
+            gregorian = round((hijri * 0.970224) + 621.5774)
             return str(gregorian)
     except Exception:
         pass

@@ -7,7 +7,7 @@ from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, StreamingResponse
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from typing import Optional
 
 from app.web.manager import manager, Job
@@ -36,6 +36,16 @@ class JobCreate(BaseModel):
     headless: bool = True
     max_items: Optional[int] = None
     dry_run: bool = False
+
+    @field_validator("url")
+    @classmethod
+    def url_must_be_shiavoice(cls, v: str) -> str:
+        v = v.strip()
+        if not v:
+            raise ValueError("URL cannot be empty")
+        if not (v.startswith("http://shiavoice.com") or v.startswith("https://shiavoice.com")):
+            raise ValueError("URL must be a shiavoice.com URL")
+        return v
 
 # Background Worker Startup
 @app.on_event("startup")

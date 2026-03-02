@@ -38,6 +38,7 @@ class ShiavoiceDownloader:
             "skipped": 0,
             "failed": 0
         }
+        self._http_session: Optional[aiohttp.ClientSession] = None
     
     async def _emit(self, event: str, data: Any):
         if self.callback:
@@ -54,7 +55,14 @@ class ShiavoiceDownloader:
             
         logger.info(f"Starting downloader for: {self.config.url}")
         await self._emit("start", {"url": self.config.url})
-        
+
+        connector = aiohttp.TCPConnector(ssl=False)
+        async with aiohttp.ClientSession(connector=connector) as session:
+            self._http_session = session
+            await self._run_with_playwright()
+            self._http_session = None
+
+    async def _run_with_playwright(self):
         async with async_playwright() as p:
             browser = await p.chromium.launch(
                 headless=self.config.headless,
@@ -105,9 +113,6 @@ class ShiavoiceDownloader:
             download_btn = page.locator(".downloadTrack").first
             await download_btn.wait_for(state="visible", timeout=self.config.timeout * 1000)
             
-            download_btn = page.locator(".downloadTrack").first
-            await download_btn.wait_for(state="visible", timeout=self.config.timeout * 1000)
-            
             # Immediate found update (only if not already discovered via list)
             if self.stats["found"] == 0:
                 self.stats["found"] = 1
@@ -119,19 +124,16 @@ class ShiavoiceDownloader:
             meta.total_tracks = total_tracks
             
             # Filename & Path
-            filename = sanitize_filename(meta.title, self.config.sanitize_filenames)
+            strict = self.config.sanitize_filenames
+            safe_artist = sanitize_filename(meta.artist or "Unknown Artist", strict)
+            safe_album  = sanitize_filename(meta.album  or "Unknown Album",  strict)
+            filename    = sanitize_filename(meta.title,                      strict)
             if not filename.lower().endswith(".mp3"):
                 filename += ".mp3"
-            
-            target_dir = self.config.output_dir
-            if meta.album:
-                safe_album = sanitize_filename(meta.album, self.config.sanitize_filenames)
-                if safe_album:
-                    target_dir = os.path.join(target_dir, safe_album)
-            
+            target_dir = os.path.join(self.config.output_dir, safe_artist, safe_album)
             os.makedirs(target_dir, exist_ok=True)
             output_path = os.path.join(target_dir, filename)
-            meta.filename = filename # Update info
+            meta.filename = filename
             
             # Check Resume
             if self.config.resume and os.path.exists(output_path) and os.path.getsize(output_path) > 0:
@@ -157,6 +159,8 @@ class ShiavoiceDownloader:
                     await download_btn.evaluate("element => element.click()")
             
             download = await download_info.value
+            if download is None:
+                raise RuntimeError("Download did not start — no file received from browser")
             await download.save_as(output_path)
             
             # Tagging
@@ -321,19 +325,20 @@ class ShiavoiceDownloader:
             with open(cache_path, "rb") as f:
                 return f.read()
 
+        if self._http_session is None:
+            logger.warning("No HTTP session available for cover art fetch")
+            return None
         try:
-            connector = aiohttp.TCPConnector(ssl=False)
-            async with aiohttp.ClientSession(connector=connector) as session:
-                async with session.get(url, headers={"User-Agent": USER_AGENT}) as resp:
-                    if resp.status == 200:
-                        data = await resp.read()
-                        if cache_path:
-                            os.makedirs(os.path.dirname(cache_path), exist_ok=True)
-                            with open(cache_path, "wb") as f:
-                                f.write(data)
-                        return data
-        except Exception:
-            pass
+            async with self._http_session.get(url, headers={"User-Agent": USER_AGENT}) as resp:
+                if resp.status == 200:
+                    data = await resp.read()
+                    if cache_path:
+                        os.makedirs(os.path.dirname(cache_path), exist_ok=True)
+                        with open(cache_path, "wb") as f:
+                            f.write(data)
+                    return data
+        except Exception as e:
+            logger.warning(f"Cover art fetch failed for {url}: {e}")
         return None
 
     def _tag_file(self, filepath: str, meta: TrackInfo, cover_data: Optional[bytes]):

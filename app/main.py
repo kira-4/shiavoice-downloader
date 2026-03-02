@@ -3,7 +3,8 @@ import argparse
 import asyncio
 import logging
 import uvicorn
-from app.downloader import ShiavoiceDownloader, DownloadConfig
+from typing import Any
+from app.downloader import ShiavoiceDownloader, DownloadConfig, TrackInfo
 
 # Helper to map argparse to DownloadConfig
 def args_to_config(args) -> DownloadConfig:
@@ -35,11 +36,14 @@ async def run_cli(args):
     setup_logging(args.verbose, args.log)
     
     # Callback to print progress
-    def cli_callback(event: str, data: any):
+    def cli_callback(event: str, data: Any):
         if event == "start":
             print(f"Started processing: {data['url']}")
-        elif event == "download_start":
-            print(f"Downloading: {data.get('filename', 'unknown')}...")
+        elif event == "track_start":
+            if isinstance(data, TrackInfo):
+                print(f"Downloading: {data.filename or data.title}...")
+            else:
+                print(f"Downloading track...")
         elif event == "track_complete":
             print(f"[OK] {data.filename}")
         elif event == "track_failed":
