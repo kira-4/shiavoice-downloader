@@ -325,13 +325,14 @@ details[open] summary::before {
     position: absolute;
     top: 0;
     left: 0;
-    width: 110px;
+    width: 300px;
     height: 100%;
     background-size: cover;
     background-position: center;
-    opacity: 0.18;
-    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 30%, transparent 100%);
-    mask-image: linear-gradient(to right, rgba(0,0,0,1) 30%, transparent 100%);
+    opacity: 0.15;
+    z-index: -1;
+    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,1) 40%, transparent 85%);
+    mask-image: linear-gradient(to right, rgba(0,0,0,1) 40%, transparent 85%);
     pointer-events: none;
 }
 
@@ -359,6 +360,8 @@ details[open] summary::before {
     display: flex;
     flex-direction: column;
     margin-bottom: 8px;
+    position: relative;
+    z-index: 1;
 }
 
 .job-title-row {
@@ -398,6 +401,8 @@ details[open] summary::before {
     border-radius: 3px;
     margin-bottom: 10px;
     overflow: hidden;
+    position: relative;
+    z-index: 1;
 }
 
 .progress-bar {
@@ -432,6 +437,8 @@ details[open] summary::before {
     font-size: 0.82rem;
     color: var(--color-muted);
     gap: 8px;
+    position: relative;
+    z-index: 1;
 }
 
 .job-actions {
@@ -439,6 +446,8 @@ details[open] summary::before {
     display: flex;
     gap: 10px;
     justify-content: flex-start;
+    position: relative;
+    z-index: 1;
 }
 
 /* ── Badges ──────────────────────────────────────────────────── */
@@ -468,6 +477,8 @@ details[open] summary::before {
     background: rgba(224, 90, 122, 0.08);
     border-radius: 4px;
     border-inline-start: 2px solid var(--color-error);
+    position: relative;
+    z-index: 1;
 }
 
 /* ── Jobs Section Header ─────────────────────────────────────── */
