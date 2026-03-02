@@ -43,7 +43,8 @@ class JobCreate(BaseModel):
         v = v.strip()
         if not v:
             raise ValueError("URL cannot be empty")
-        if not (v.startswith("http://shiavoice.com") or v.startswith("https://shiavoice.com")):
+        if not (v.startswith("http://shiavoice.com") or v.startswith("https://shiavoice.com")
+                or v.startswith("http://www.shiavoice.com") or v.startswith("https://www.shiavoice.com")):
             raise ValueError("URL must be a shiavoice.com URL")
         return v
 
