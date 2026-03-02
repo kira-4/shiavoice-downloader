@@ -91,6 +91,12 @@ function updateJobElement(card, job) {
             bar.style.width = `${pct}%`;
         }
         
+        // Cover art background
+        const coverBg = card.querySelector(".job-cover-bg");
+        if (coverBg && job.cover_url) {
+            coverBg.style.backgroundImage = `url(${job.cover_url})`;
+        }
+
         // Header Info
         const titleEl = card.querySelector(".job-title");
         if (titleEl) titleEl.textContent = job.title || "جارٍ التحميل...";
@@ -195,7 +201,7 @@ async function addJob(e) {
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify(data)
         });
-        e.target.reset();
+        document.getElementById("url-input").value = "";
     } catch (err) {
         log(`Failed to add job: ${err.message}`, "error");
         alert("فشل إضافة التحميل. يرجى المحاولة مرة أخرى.");

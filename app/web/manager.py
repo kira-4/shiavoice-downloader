@@ -25,6 +25,7 @@ class Job:
         self.progress = 0
         self.tracks: List[dict] = []  # List of TrackInfo dicts
         self.current_track: str = None
+        self.cover_url: str = None
         self._task = None  # asyncio Task
         self._stop_event = asyncio.Event() 
         self._pause_event = asyncio.Event()
@@ -42,7 +43,8 @@ class Job:
             "stats": self.stats,
             "options": self.options,
             "tracks": self.tracks,
-            "current_track": self.current_track
+            "current_track": self.current_track,
+            "cover_url": self.cover_url
         }
 
 class JobManager:
@@ -95,6 +97,7 @@ class JobManager:
                         job.error = data.get("error")
                         job.stats = data.get("stats", {})
                         job.tracks = data.get("tracks", [])
+                        job.cover_url = data.get("cover_url")
                         
                         # Reset stuck jobs
                         if job.status in ["running", "queued"]:
@@ -109,6 +112,7 @@ class JobManager:
 
     def _save_job_sync(self, job: Job):
         try:
+            os.makedirs(self.data_dir, exist_ok=True)
             temp_path = self.db_path + ".tmp"
             with open(temp_path, "w") as f:
                 for j in self.jobs.values():
@@ -219,6 +223,9 @@ class JobManager:
             elif event == "track_start":
                 if isinstance(data, TrackInfo):
                     job.current_track = data.title
+                    if data.cover_url and not job.cover_url:
+                        job.cover_url = data.cover_url
+                        save_needed = True
                     # Attempt to set title if missing
                     if not job.title:
                         if data.album:
