@@ -1,6 +1,8 @@
 import os
 import asyncio
 import logging
+import json
+import time
 from fastapi import FastAPI, Depends, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -82,6 +84,9 @@ async def sse_events():
     async def event_generator():
         q = await manager.subscribe()
         try:
+            # Send initial connection message
+            yield f"data: {json.dumps({'event': 'connected', 'data': {'timestamp': time.time()}})}\n\n"
+
             while True:
                 data = await q.get()
                 yield f"data: {data}\n\n"
