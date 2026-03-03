@@ -9,7 +9,7 @@ from playwright.async_api import async_playwright, Page, BrowserContext
 # Mutagen
 try:
     import mutagen
-    from mutagen.id3 import ID3, TIT2, TPE1, TALB, TCON, APIC, ID3NoHeaderError, TDRC, TRCK
+    from mutagen.id3 import ID3, TIT2, TPE1, TPE2, TALB, TCON, APIC, ID3NoHeaderError, TDRC, TRCK
     from mutagen.mp3 import MP3
     from mutagen.mp4 import MP4, MP4Cover
     MUTAGEN_AVAILABLE = True
@@ -362,7 +362,9 @@ class ShiavoiceDownloader:
             audio.add_tags()
             
         if meta.title: audio.tags.add(TIT2(encoding=3, text=meta.title))
-        if meta.artist: audio.tags.add(TPE1(encoding=3, text=meta.artist))
+        if meta.artist:
+            audio.tags.add(TPE1(encoding=3, text=meta.artist))
+            audio.tags.add(TPE2(encoding=3, text=meta.artist))
         if meta.album: audio.tags.add(TALB(encoding=3, text=meta.album))
         if meta.genre: audio.tags.add(TCON(encoding=3, text=meta.genre))
         if meta.year: audio.tags.add(TDRC(encoding=3, text=str(meta.year)))
@@ -380,7 +382,9 @@ class ShiavoiceDownloader:
     def _tag_m4a(self, filepath: str, meta: TrackInfo, cover_data: Optional[bytes]):
         audio = MP4(filepath)
         if meta.title: audio.tags["\xa9nam"] = meta.title
-        if meta.artist: audio.tags["\xa9ART"] = meta.artist
+        if meta.artist:
+            audio.tags["\xa9ART"] = meta.artist
+            audio.tags["aART"] = meta.artist
         if meta.album: audio.tags["\xa9alb"] = meta.album
         if meta.genre: audio.tags["\xa9gen"] = meta.genre
         if meta.year: audio.tags["\xa9day"] = str(meta.year)
